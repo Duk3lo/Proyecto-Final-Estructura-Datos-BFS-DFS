@@ -15,9 +15,9 @@ import model.Node;
 
 public class MapPanel extends JPanel {
 
-    private List<Node> fullPath;     // ruta completa
-    private List<Node> visiblePath;  // ruta que se va dibujando
     private Collection<Node> nodes;
+    private List<Node> fullPath;
+    private List<Node> visiblePath;
 
     private Timer timer;
     private int step;
@@ -27,19 +27,23 @@ public class MapPanel extends JPanel {
         repaint();
     }
 
-    // 🔴 Animar la ruta
+    public void reloadNodes(Collection<Node> nodes) {
+        this.nodes = nodes;
+        clearPath();
+    }
+
     public void animatePath(List<Node> path) {
         if (path == null || path.size() < 2) return;
 
-        this.fullPath = path;
-        this.visiblePath = new ArrayList<>();
-        this.step = 0;
+        fullPath = path;
+        visiblePath = new ArrayList<>();
+        step = 0;
 
         if (timer != null && timer.isRunning()) {
             timer.stop();
         }
 
-        timer = new Timer(300, e -> {   // velocidad (ms)
+        timer = new Timer(300, e -> {
             if (step < fullPath.size()) {
                 visiblePath.add(fullPath.get(step));
                 step++;
@@ -63,7 +67,7 @@ public class MapPanel extends JPanel {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
 
-        // 🔵 Dibujar nodos
+        // Nodos y etiquetas
         if (nodes != null) {
             for (Node n : nodes) {
                 g2.setColor(Color.BLUE);
@@ -73,7 +77,7 @@ public class MapPanel extends JPanel {
             }
         }
 
-        // 🔴 Dibujar ruta animada
+        // Ruta animada
         if (visiblePath != null && visiblePath.size() > 1) {
             g2.setColor(Color.RED);
             g2.setStroke(new BasicStroke(2));

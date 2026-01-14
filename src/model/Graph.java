@@ -11,8 +11,17 @@ public class Graph {
     }
 
     public void connect(String a, String b) {
-        nodes.get(a).neighbors.add(nodes.get(b));
-        nodes.get(b).neighbors.add(nodes.get(a));
+        Node na = nodes.get(a);
+        Node nb = nodes.get(b);
+
+        if (na == null || nb == null) {
+            throw new IllegalArgumentException(
+                "Nodo no existe: " + a + " o " + b
+            );
+        }
+
+        na.neighbors.add(nb);
+        nb.neighbors.add(na);
     }
 
     public Node getFirstNode() {

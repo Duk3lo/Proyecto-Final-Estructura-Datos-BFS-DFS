@@ -12,11 +12,22 @@ public class GraphController {
     }
 
     public List<Node> runBFS() {
-        return BFS.search(graph.getFirstNode(), graph.getLastNode());
+        return BFS.search(
+            graph.getFirstNode(),
+            graph.getLastNode()
+        );
     }
 
     public List<Node> runDFS() {
-        return DFS.search(graph.getFirstNode(), graph.getLastNode());
+        return DFS.search(
+            graph.getFirstNode(),
+            graph.getLastNode()
+        );
+    }
+
+    // 🔄 RECARGAR ARCHIVO
+    public void reloadGraph(String file) throws Exception {
+        this.graph = GraphLoader.load(file);
     }
 
     public Graph getGraph() {
