@@ -19,18 +19,18 @@ public class MainFrame extends JFrame {
 
         add(mapPanel, BorderLayout.CENTER);
 
-        JPanel controls = new JPanel(new FlowLayout());
+        JPanel controls = new JPanel();
 
         JButton bfsBtn = new JButton("BFS");
         JButton dfsBtn = new JButton("DFS");
         JButton clearBtn = new JButton("Limpiar");
 
         bfsBtn.addActionListener(e ->
-            mapPanel.animatePath(controller.runBFS("A", "B"))
+            mapPanel.animatePath(controller.runBFS())
         );
 
         dfsBtn.addActionListener(e ->
-            mapPanel.animatePath(controller.runDFS("A", "B"))
+            mapPanel.animatePath(controller.runDFS())
         );
 
         clearBtn.addActionListener(e ->

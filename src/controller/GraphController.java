@@ -1,7 +1,7 @@
 package controller;
 
-import java.util.List;
 import model.*;
+import java.util.*;
 
 public class GraphController {
 
@@ -11,12 +11,12 @@ public class GraphController {
         this.graph = graph;
     }
 
-    public List<Node> runBFS(String a, String b) {
-        return BFS.search(graph.nodes.get(a), graph.nodes.get(b));
+    public List<Node> runBFS() {
+        return BFS.search(graph.getFirstNode(), graph.getLastNode());
     }
 
-    public List<Node> runDFS(String a, String b) {
-        return DFS.search(graph.nodes.get(a), graph.nodes.get(b));
+    public List<Node> runDFS() {
+        return DFS.search(graph.getFirstNode(), graph.getLastNode());
     }
 
     public Graph getGraph() {
