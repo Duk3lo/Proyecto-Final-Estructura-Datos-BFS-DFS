@@ -1,36 +1,40 @@
 package controller;
 
 import model.*;
-import java.util.*;
+import util.TimeLogger;
 
 public class GraphController {
 
-    private Graph graph;
+    private Graph<String> graph;
 
-    public GraphController(Graph graph) {
+    private final PathFinder<String> bfs = new BFSPathFinder<>();
+    private final PathFinder<String> dfs = new DFSPathFinder<>();
+
+    public GraphController(Graph<String> graph) {
         this.graph = graph;
     }
 
-    public List<Node> runBFS() {
-        return BFS.search(
-            graph.getFirstNode(),
-            graph.getLastNode()
-        );
+    public PathResult<String> runBFS(Node<String> start, Node<String> end) {
+        long t1 = System.nanoTime();
+        PathResult<String> r = bfs.findPath(graph, start, end);
+        long t2 = System.nanoTime();
+        TimeLogger.log("BFS", t2 - t1);
+        return r;
     }
 
-    public List<Node> runDFS() {
-        return DFS.search(
-            graph.getFirstNode(),
-            graph.getLastNode()
-        );
+    public PathResult<String> runDFS(Node<String> start, Node<String> end) {
+        long t1 = System.nanoTime();
+        PathResult<String> r = dfs.findPath(graph, start, end);
+        long t2 = System.nanoTime();
+        TimeLogger.log("DFS", t2 - t1);
+        return r;
     }
 
-    // 🔄 RECARGAR ARCHIVO
+    public Graph<String> getGraph() {
+        return graph;
+    }
+
     public void reloadGraph(String file) throws Exception {
         this.graph = GraphLoader.load(file);
-    }
-
-    public Graph getGraph() {
-        return graph;
     }
 }

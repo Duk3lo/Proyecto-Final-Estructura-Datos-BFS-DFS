@@ -1,65 +1,115 @@
 package view;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.*;
 import java.util.List;
 
-import javax.swing.JPanel;
+import javax.swing.*;
 import javax.swing.Timer;
 
 import model.Node;
+import model.PathResult;
 
 public class MapPanel extends JPanel {
 
-    private Collection<Node> nodes;
-    private List<Node> fullPath;
-    private List<Node> visiblePath;
+    private Collection<Node<String>> nodes;
+
+    private List<Node<String>> visitados;
+    private List<Node<String>> path;
+    private List<Node<String>> visiblePath;
+
+    private Node<String> startNode;
+    private Node<String> endNode;
+
+    private VisualizationMode mode = VisualizationMode.EXPLORATION;
 
     private Timer timer;
     private int step;
 
-    public void setNodes(Collection<Node> nodes) {
+    public MapPanel() {
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                Node<String> n = getNodeAt(e.getX(), e.getY());
+                if (n == null) return;
+
+                if (startNode == null) {
+                    startNode = n;
+                } else if (endNode == null) {
+                    endNode = n;
+                } else {
+                    startNode = n;
+                    endNode = null;
+                }
+                repaint();
+            }
+        });
+    }
+
+    private Node<String> getNodeAt(int x, int y) {
+        if (nodes == null) return null;
+        for (Node<String> n : nodes) {
+            int dx = x - n.getX();
+            int dy = y - n.getY();
+            if (dx * dx + dy * dy <= 100) return n;
+        }
+        return null;
+    }
+
+    public void setNodes(Collection<Node<String>> nodes) {
         this.nodes = nodes;
         repaint();
     }
 
-    public void reloadNodes(Collection<Node> nodes) {
+    public void reloadNodes(Collection<Node<String>> nodes) {
         this.nodes = nodes;
-        clearPath();
+        clearAll();
     }
 
-    public void animatePath(List<Node> path) {
-        if (path == null || path.size() < 2) return;
+    public void setMode(VisualizationMode mode) {
+        this.mode = mode;
+    }
 
-        fullPath = path;
+    public Node<String> getStartNode() {
+        return startNode;
+    }
+
+    public Node<String> getEndNode() {
+        return endNode;
+    }
+
+    public void clearAll() {
+        if (timer != null) timer.stop();
+        visitados = null;
+        path = null;
+        visiblePath = null;
+        startNode = null;
+        endNode = null;
+        repaint();
+    }
+
+    public void animateResult(PathResult<String> result) {
+        if (result == null) return;
+
+        visitados = (mode == VisualizationMode.EXPLORATION)
+                ? result.getVisitados()
+                : null;
+
+        path = result.getPath();
         visiblePath = new ArrayList<>();
         step = 0;
 
-        if (timer != null && timer.isRunning()) {
-            timer.stop();
-        }
+        if (timer != null && timer.isRunning()) timer.stop();
 
         timer = new Timer(300, e -> {
-            if (step < fullPath.size()) {
-                visiblePath.add(fullPath.get(step));
-                step++;
+            if (step < path.size()) {
+                visiblePath.add(path.get(step++));
                 repaint();
-            } else {
-                timer.stop();
-            }
+            } else timer.stop();
         });
-
         timer.start();
-    }
-
-    public void clearPath() {
-        if (timer != null) timer.stop();
-        visiblePath = null;
-        repaint();
     }
 
     @Override
@@ -67,25 +117,35 @@ public class MapPanel extends JPanel {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
 
-        // Nodos y etiquetas
         if (nodes != null) {
-            for (Node n : nodes) {
-                g2.setColor(Color.BLUE);
-                g2.fillOval(n.x - 6, n.y - 6, 12, 12);
-                g2.setColor(Color.BLACK);
-                g2.drawString(n.id, n.x + 8, n.y - 8);
+            g2.setColor(Color.LIGHT_GRAY);
+            for (Node<String> n : nodes) {
+                for (Node<String> m : n.getNeighbors()) {
+                    g2.drawLine(n.getX(), n.getY(), m.getX(), m.getY());
+                }
             }
         }
 
-        // Ruta animada
+        if (nodes != null) {
+            for (Node<String> n : nodes) {
+                if (n.equals(startNode)) g2.setColor(Color.GREEN);
+                else if (n.equals(endNode)) g2.setColor(Color.RED);
+                else if (visitados != null && visitados.contains(n)) g2.setColor(Color.ORANGE);
+                else g2.setColor(Color.BLUE);
+
+                g2.fillOval(n.getX() - 6, n.getY() - 6, 12, 12);
+                g2.setColor(Color.BLACK);
+                g2.drawString(n.getValue().toString(), n.getX() + 8, n.getY() - 8);
+            }
+        }
+
         if (visiblePath != null && visiblePath.size() > 1) {
             g2.setColor(Color.RED);
-            g2.setStroke(new BasicStroke(2));
-
+            g2.setStroke(new BasicStroke(3));
             for (int i = 0; i < visiblePath.size() - 1; i++) {
-                Node a = visiblePath.get(i);
-                Node b = visiblePath.get(i + 1);
-                g2.drawLine(a.x, a.y, b.x, b.y);
+                Node<String> a = visiblePath.get(i);
+                Node<String> b = visiblePath.get(i + 1);
+                g2.drawLine(a.getX(), a.getY(), b.getX(), b.getY());
             }
         }
     }

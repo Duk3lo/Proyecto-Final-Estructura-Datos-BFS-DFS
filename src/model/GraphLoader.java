@@ -4,9 +4,11 @@ import java.io.*;
 
 public class GraphLoader {
 
-    public static Graph load(String file) throws Exception {
-        Graph g = new Graph();
+    public static Graph<String> load(String file) throws Exception {
 
+        Graph<String> g = new Graph<>();
+
+        // 1️⃣ Cargar nodos
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             String line;
 
@@ -14,14 +16,16 @@ public class GraphLoader {
                 String[] p = line.split(",");
 
                 if (p[0].equals("N")) {
-                    g.addNode(new Node(
-                            p[1].trim(),
-                            Integer.parseInt(p[2].trim()),
-                            Integer.parseInt(p[3].trim())));
+                    g.addNode(new Node<>(
+                        p[1].trim(),
+                        Integer.parseInt(p[2].trim()),
+                        Integer.parseInt(p[3].trim())
+                    ));
                 }
             }
         }
 
+        // 2️⃣ Conectar nodos
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             String line;
 
@@ -29,11 +33,7 @@ public class GraphLoader {
                 String[] p = line.split(",");
 
                 if (p[0].equals("E")) {
-                    if (g.nodes.containsKey(p[1].trim())
-                            && g.nodes.containsKey(p[2].trim())) {
-
-                        g.connect(p[1].trim(), p[2].trim());
-                    }
+                    g.connect(p[1].trim(), p[2].trim());
                 }
             }
         }

@@ -2,17 +2,17 @@ package model;
 
 import java.util.*;
 
-public class Graph {
+public class Graph<T> {
 
-    public Map<String, Node> nodes = new LinkedHashMap<>();
+    private final Map<T, Node<T>> nodes = new LinkedHashMap<>();
 
-    public void addNode(Node n) {
-        nodes.put(n.id, n);
+    public void addNode(Node<T> node) {
+        nodes.put(node.getValue(), node);
     }
 
-    public void connect(String a, String b) {
-        Node na = nodes.get(a);
-        Node nb = nodes.get(b);
+    public void connect(T a, T b) {
+        Node<T> na = nodes.get(a);
+        Node<T> nb = nodes.get(b);
 
         if (na == null || nb == null) {
             throw new IllegalArgumentException(
@@ -20,19 +20,23 @@ public class Graph {
             );
         }
 
-        na.neighbors.add(nb);
-        nb.neighbors.add(na);
+        na.getNeighbors().add(nb);
+        nb.getNeighbors().add(na);
     }
 
-    public Node getFirstNode() {
+    public Node<T> getFirstNode() {
         return nodes.values().iterator().next();
     }
 
-    public Node getLastNode() {
-        Node last = null;
-        for (Node n : nodes.values()) {
+    public Node<T> getLastNode() {
+        Node<T> last = null;
+        for (Node<T> n : nodes.values()) {
             last = n;
         }
         return last;
+    }
+
+    public Collection<Node<T>> getNodes() {
+        return nodes.values();
     }
 }
