@@ -92,7 +92,7 @@ public class MapPanel extends JPanel {
 
     public void setMode(VisualizationMode mode) {
         this.mode = mode;
-        applyVisualization(); // ⭐ FIX
+        applyVisualization();
     }
 
     public Node<String> getStartNode() {
