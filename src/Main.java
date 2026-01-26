@@ -12,7 +12,7 @@ public class Main {
             try {
                 Graph<String> graph = GraphLoader.load(FILE);
                 GraphController controller = new GraphController(graph);
-                new MainFrame(controller).setVisible(true);
+                new MainFrame(controller, FILE).setVisible(true);
             } catch (Exception e) {
                 e.printStackTrace();
             }

@@ -8,35 +8,49 @@ import java.awt.*;
 public class MainFrame extends JFrame {
 
     private final MapPanel mapPanel;
+    private JCheckBox bfsCheck;
+    private JCheckBox dfsCheck;
 
-    public MainFrame(GraphController controller) {
+    public MainFrame(GraphController controller, String graphFile) {
 
         setTitle("Proyecto BFS vs DFS");
-        setSize(900, 600);
-        setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
         mapPanel = new MapPanel();
         mapPanel.setNodes(controller.getGraph().getNodes());
         add(mapPanel, BorderLayout.CENTER);
 
-        JPanel controls = new JPanel();
+        // =========================
+        // PANEL DE CONTROLES
+        // =========================
+        JPanel controls = new JPanel(new FlowLayout(FlowLayout.CENTER));
 
-        JButton bfsBtn = new JButton("BFS");
-        JButton dfsBtn = new JButton("DFS");
+        bfsCheck = new JCheckBox("BFS");
+        dfsCheck = new JCheckBox("DFS");
+
+        ButtonGroup group = new ButtonGroup();
+        group.add(bfsCheck);
+        group.add(dfsCheck);
+
+        bfsCheck.setSelected(true);
+
+        JButton runBtn = new JButton("Ejecutar");
         JButton clearBtn = new JButton("Limpiar");
         JButton reloadBtn = new JButton("Recargar");
         JToggleButton modeBtn = new JToggleButton("Ruta Final");
 
-        bfsBtn.addActionListener(e -> run(controller, true));
-        dfsBtn.addActionListener(e -> run(controller, false));
+        // =========================
+        // ACCIONES
+        // =========================
+        runBtn.addActionListener(e -> run(controller));
 
         clearBtn.addActionListener(e -> mapPanel.clearAll());
 
         reloadBtn.addActionListener(e -> {
             try {
-                controller.reloadGraph("resources/graph.txt");
+                controller.reloadGraph(graphFile); // 👈 USO CENTRALIZADO
                 mapPanel.reloadNodes(controller.getGraph().getNodes());
+                pack();
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, ex.getMessage());
             }
@@ -45,27 +59,40 @@ public class MainFrame extends JFrame {
         modeBtn.addActionListener(e ->
             mapPanel.setMode(
                 modeBtn.isSelected()
-                        ? VisualizationMode.FINAL_PATH
-                        : VisualizationMode.EXPLORATION
+                    ? VisualizationMode.FINAL_PATH
+                    : VisualizationMode.EXPLORATION
             )
         );
 
-        controls.add(bfsBtn);
-        controls.add(dfsBtn);
+        // =========================
+        // AGREGAR COMPONENTES
+        // =========================
+        controls.add(new JLabel("Algoritmo:"));
+        controls.add(bfsCheck);
+        controls.add(dfsCheck);
+        controls.add(runBtn);
         controls.add(modeBtn);
         controls.add(clearBtn);
         controls.add(reloadBtn);
 
         add(controls, BorderLayout.SOUTH);
+
+        pack();
+        setLocationRelativeTo(null);
     }
 
-    private void run(GraphController controller, boolean bfs) {
+    // =========================
+    // EJECUTAR ALGORITMO
+    // =========================
+    private void run(GraphController controller) {
+
         if (mapPanel.getStartNode() == null || mapPanel.getEndNode() == null) {
             JOptionPane.showMessageDialog(this, "Seleccione inicio y destino");
             return;
         }
+
         mapPanel.animateResult(
-            bfs
+            bfsCheck.isSelected()
                 ? controller.runBFS(mapPanel.getStartNode(), mapPanel.getEndNode())
                 : controller.runDFS(mapPanel.getStartNode(), mapPanel.getEndNode())
         );
