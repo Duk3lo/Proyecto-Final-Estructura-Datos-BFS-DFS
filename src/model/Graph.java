@@ -10,7 +10,13 @@ public class Graph<T> {
         nodes.put(node.getValue(), node);
     }
 
+    // conserva la firma antigua
     public void connect(T a, T b) {
+        connect(a, b, true);
+    }
+
+    // nueva sobrecarga: bidirectional = true para agregar en ambos sentidos
+    public void connect(T a, T b, boolean bidirectional) {
         Node<T> na = nodes.get(a);
         Node<T> nb = nodes.get(b);
 
@@ -21,7 +27,26 @@ public class Graph<T> {
         }
 
         na.getNeighbors().add(nb);
-        nb.getNeighbors().add(na);
+        if (bidirectional) {
+            nb.getNeighbors().add(na);
+        }
+    }
+
+    public void disconnect(T a, T b) {
+        Node<T> na = nodes.get(a);
+        Node<T> nb = nodes.get(b);
+        if (na == null || nb == null) return;
+        na.getNeighbors().remove(nb);
+        nb.getNeighbors().remove(na);
+    }
+
+    public void removeNode(T value) {
+        Node<T> target = nodes.remove(value);
+        if (target == null) return;
+        // quitar referencias desde otros nodos
+        for (Node<T> n : nodes.values()) {
+            n.getNeighbors().remove(target);
+        }
     }
 
     public Node<T> getFirstNode() {
@@ -38,5 +63,9 @@ public class Graph<T> {
 
     public Collection<Node<T>> getNodes() {
         return nodes.values();
+    }
+
+    public Node<T> getNode(T value) {
+        return nodes.get(value);
     }
 }
